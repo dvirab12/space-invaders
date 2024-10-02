@@ -1,6 +1,10 @@
+#include <SDL2/SDL_error.h>
+#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_surface.h>
 #include <stdio.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <string>
 
 #define SCREEN_HEIGHT 720
 #define SCREEN_WIDTH 1280
@@ -9,6 +13,107 @@ SDL_Window* gWindow = NULL;
 SDL_Surface* gScreenSurface = NULL;
 SDL_Renderer* gRenderer = NULL;
 int playerSpeed = 5;
+
+enum SpritesTextures {
+    PLAYER,
+    ENEMY1,
+};
+
+class LTexture {
+    public:
+        //init
+        LTexture();
+        //deallocate
+        ~LTexture();
+
+        //Load image
+        bool loadFromFile( std::string path );
+        //deallocate texture
+        void free();
+        //render texture at a specific SDL_Rect
+        void render(int x, int y, SDL_Rect* clip = NULL);
+
+        int getWidth();
+        int getHeight();
+
+    private:
+        SDL_Texture* mTexture;
+
+        int mWidth;
+        int mHeight;
+};
+
+LTexture::LTexture()
+{
+	//Initialize
+	mTexture = NULL;
+	mWidth = 0;
+	mHeight = 0;
+}
+
+LTexture::~LTexture()
+{
+	//Deallocate
+	free();
+}
+
+void LTexture::free() {
+    if (mTexture == NULL) {
+        return;
+    }
+    SDL_DestroyTexture(mTexture);
+    mTexture = NULL;
+    mWidth = 0;
+    mHeight = 0;
+}
+
+void LTexture::render(int x, int y, SDL_Rect* clip) {
+    SDL_Rect renderQuad = {x, y, mWidth, mHeight};
+
+    if (clip != NULL) {
+        renderQuad.w = clip->w;
+        renderQuad.h = clip->h;
+    }
+
+    SDL_RenderCopy(gRenderer, mTexture, clip, &renderQuad);
+}
+
+int LTexture::getWidth()
+{
+	return mWidth;
+}
+
+int LTexture::getHeight()
+{
+	return mHeight;
+}
+
+bool LTexture::loadFromFile(std::string path) {
+    free();
+
+    SDL_Texture* newTexture = NULL;
+
+    SDL_Surface* loadedSurface = SDL_LoadBMP(path.c_str());
+    if (loadedSurface == NULL) {
+        printf("Unable to load BMP %s, SDL Error: %s\n", path.c_str(),SDL_GetError());
+    }
+
+    newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
+    if (newTexture == NULL) {
+        printf("Unable to create Texture from %s, SDL Error: %s\n", path.c_str(), SDL_GetError());
+    }
+    mWidth = loadedSurface->w;
+    mHeight = loadedSurface->h;
+    
+    SDL_FreeSurface(loadedSurface);
+    
+    mTexture = newTexture;
+    return mTexture != NULL;
+}
+
+
+SDL_Rect gSpriteClips[2];
+LTexture gSpriteSheetTexture;
 
 SDL_Rect rect = {SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100, 50, 50};
 
@@ -70,6 +175,7 @@ bool init() {
     }
 
     int imgFlags = IMG_INIT_PNG;
+    //TODO not used now
     if (!(IMG_Init(imgFlags) & imgFlags)) {
         printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
         success = false;
