@@ -17,6 +17,7 @@ int playerSpeed = 5;
 enum SpritesTextures {
     PLAYER,
     ENEMY1,
+    TOTAL,
 };
 
 class LTexture {
@@ -112,7 +113,7 @@ bool LTexture::loadFromFile(std::string path) {
 }
 
 
-SDL_Rect gSpriteClips[2];
+SDL_Rect gSpriteClips[TOTAL];
 LTexture gSpriteSheetTexture;
 
 SDL_Rect rect = {SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100, 50, 50};
@@ -145,7 +146,6 @@ int main(int argc, char* args[]) {
             }
         }
 
-        
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
         SDL_RenderClear(gRenderer);
         SDL_SetRenderDrawColor(gRenderer, 255, 255, 0, 255);
@@ -157,6 +157,24 @@ int main(int argc, char* args[]) {
 
     close();
     return 0;
+}
+
+bool loadSpriteSheet(std::string path){
+  bool success = true;
+  if(!gSpriteSheetTexture.loadFromFile(path)){
+    printf("Cannot load texture! SDL_ERROR: %s\n",  SDL_GetError());
+    return false;
+  }
+  gSpriteClips[PLAYER].x = 15;
+  gSpriteClips[PLAYER].x = 15;
+  gSpriteClips[PLAYER].x = 15;
+  gSpriteClips[PLAYER].x = 15;
+  
+  gSpriteClips[ENEMY1].x = 15;
+  gSpriteClips[ENEMY1].x = 15;
+  gSpriteClips[ENEMY1].x = 15;
+  gSpriteClips[ENEMY1].x = 15;
+  return success;
 }
 
 bool init() {

@@ -1,0 +1,10 @@
+enum spriteID {
+  ENEMY1,
+  ENEMY2,
+  ENEMY3,
+  ENEMY4,
+  TOTAL,X
+};
+
+
+
