@@ -1,13 +1,31 @@
 #include <SDL2/SDL.h>
 
-enum spriteID {
-  ENEMY1,
-  ENEMY2,
-  ENEMY3,
+#include <string>
+
+class LTexture {
+    public:
+  LTexture(){
+    mTexture = NULL;
+  }
+  
+  ~LTexture() {
+    if (mTexture != NULL) {
+      SDL_DestroyTexture(mTexture);
+    }
+  }
+  
+  void loadFromFile(SDL_Renderer* renderer, std::string path ) {
+    SDL_Surface* loadedSurface = SDL_LoadBMP(path.c_str());
+    mTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
+    SDL_FreeSurface(loadedSurface);
+  }
+  
+    private:
+        SDL_Texture* mTexture;
 };
 
 class Sprite {
-  SDL_Texture* sSheet;
+  LTexture* sSheet;
   SDL_Rect* frames;
   int framesSize;
 
@@ -19,15 +37,20 @@ class Sprite {
     delete []frames;
   }
 
-  void render(SDL_Renderer* renderer, int frameIdx) {
+  void render(SDl_renderer* renderer){
+    for (int i = 0; i < framesSize; i++) {
+      renderFrame(renderer, i);x
+    }
+  }
+  void renderFrame(SDL_Renderer* renderer, int frameIdx) {
     if (frameIdx > framesSize - 1) {
       printf("Frame index is out of reach!");
       return; 
     }
-    SDL_RenderCopy(renderer, sSheet, NULL, &frames[frameIdx]);
+    SDL_RenderCopy(renderer, sSheet.mTexture, NULL, &frames[frameIdx]);
   }
 
-  void freeTexture(SDL_Texture* texture) {
+   void freeLTexture(LTexture* texture) {
     if (texture != NULL) {
       SDL_DestroyTexture(texture);
     }
