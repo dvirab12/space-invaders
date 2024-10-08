@@ -1,9 +1,7 @@
-#include <SDL2/SDL_error.h>
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_surface.h>
-#include <stdio.h>
-#include <SDL2/SDL.h>
+#include "sprites.cpp"
+
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL.h>
 #include <string>
 
 #define SCREEN_HEIGHT 720
@@ -14,17 +12,7 @@ SDL_Surface* gScreenSurface = NULL;
 SDL_Renderer* gRenderer = NULL;
 int playerSpeed = 5;
 
-enum SpritesTextures {
-    PLAYER,
-    ENEMY1,
-    TOTAL,
-};
-
-
-
-
-SDL_Rect gSpriteClips[TOTAL];
-LTexture gSpriteSheetTexture;
+LTexture enemysSheet;
 
 SDL_Rect rect = {SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100, 50, 50};
 
@@ -36,7 +24,12 @@ int main(int argc, char* args[]) {
         printf("Failed to init! SDL_Error: %s\n", SDL_GetError());
         return -1;
     } 
+    enemysSheet.loadFromFile(gRenderer, "assets/spirits/enemys.bmp");
+    Sprite enemy1(&enemysSheet, 2);
 
+    enemy1.setFrameClip(0, 0, 0, 50, 50);
+    enemy1.setFrameClip(1, 0, 0, 50, 50);
+    
     SDL_Event event;
     bool quit = false;
     while (!quit) {
@@ -55,13 +48,22 @@ int main(int argc, char* args[]) {
                 }
             }
         }
-
+	// Clear the screen with black
         SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
         SDL_RenderClear(gRenderer);
-        SDL_SetRenderDrawColor(gRenderer, 255, 255, 0, 255);
 
+        // Set a color for the player rectangle (yellow)
+        SDL_SetRenderDrawColor(gRenderer, 255, 255, 0, 255);
+        
+        // Render the enemy sprite
+        enemy1.render(gRenderer);
+
+	SDL_RenderCopy(gRenderer, enemysSheet.getTexture(), NULL, NULL);
+
+        // Render the player rectangle
         SDL_RenderFillRect(gRenderer, &rect);
 
+        // Present the current rendering to the screen
         SDL_RenderPresent(gRenderer);
     }
 
@@ -69,22 +71,7 @@ int main(int argc, char* args[]) {
     return 0;
 }
 
-bool loadSpriteSheet(std::string path){
-  bool success = true;
-  if(!gSpriteSheetTexture.loadFromFile(path)){
-    printf("Cannot load texture! SDL_ERROR: %s\n",  SDL_GetError());
-    return false;
-  }
-  gSpriteClips[PLAYER].x = 15;
-  gSpriteClips[PLAYER].x = 15;
-  gSpriteClips[PLAYER].x = 15;
-  gSpriteClips[PLAYER].x = 15;
-  
-  gSpriteClips[ENEMY1].x = 15;
-  gSpriteClips[ENEMY1].x = 15;
-  gSpriteClips[ENEMY1].x = 15;
-  gSpriteClips[ENEMY1].x = 15;
-  return success;
+void loadMedia() {
 }
 
 bool init() {
@@ -127,4 +114,3 @@ void close() {
 
     SDL_Quit();
 }
-
